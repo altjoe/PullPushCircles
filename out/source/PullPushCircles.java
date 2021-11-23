@@ -17,7 +17,7 @@ public class PullPushCircles extends PApplet {
 Push push;
 Pull pull;
 
-
+Recording record;
 ArrayList<RainLine> lines = new ArrayList<RainLine>();
 boolean raining = true;
 public void setup() {
@@ -31,7 +31,8 @@ public void setup() {
     
     pull = new Pull(width/2, height/2);
     push = new Push(width/2, height/2);
-    
+    record = new Recording();
+    record.start();
 }
 
 int waves = 1;
@@ -41,15 +42,6 @@ public void draw() {
         line.doAll();
     }
     
-    // if (frameCount < 500 * waves && waves < 5){
-    //     if (frameCount % 50 == 0){
-    //     raining = !raining;
-    //     } else if (frameCount % 20 == 0 && !raining){
-    //         raining = true;
-    //     }
-    // } else {
-    //     waves += 1;
-    // }
     if (!hardrain){
         rainperc -= rainsub;
     } else{
@@ -60,14 +52,16 @@ public void draw() {
         }
     }
     
-    if (rainperc < 100){
+    if (rainperc < 100 && !hardrain){
         rainsub *= -1;
         hardrain = true;
-    } else if (rainperc > 500){
+    } else if (rainperc > 500 && !hardrain){
         rainsub *= -1;
     }
 
     push.display();
+
+    // record.control();
 }
 int hardraincount = 0;
 boolean hardrain = false;
@@ -246,7 +240,7 @@ class Recording {
     int start_frame;
     int stop_frame;
     int frame_rate = 30;
-    int recording_time = 60;
+    int recording_time = 200;
 
     public Recording() {
         
