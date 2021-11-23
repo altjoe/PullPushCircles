@@ -42,26 +42,26 @@ public void draw() {
         line.doAll();
     }
     
-    if (!hardrain){
-        rainperc -= rainsub;
+    if (!hardrain || frameCount >= 4000){
+        rainperc += rainsub;
     } else{
         hardraincount += 1;
-        if (hardraincount > 60){
+        if (hardraincount > 200){
             hardrain = false;
             hardraincount = 0;
+            rainperc = 50;
         }
     }
     
-    if (rainperc < 100 && !hardrain){
-        rainsub *= -1;
+    if (rainperc < 50 && !hardrain){
+        rainsub = 1;
         hardrain = true;
-    } else if (rainperc > 500 && !hardrain){
-        rainsub *= -1;
+    } else if (rainperc > 500 && !hardrain && frameCount < 4000){
+        rainsub = -1;
     }
-
     push.display();
 
-    // record.control();
+    record.control();
 }
 int hardraincount = 0;
 boolean hardrain = false;
@@ -94,14 +94,21 @@ class RainLine{
     }
 
     public void shootone(){
-        if (PApplet.parseInt(random(0, rainperc)) == 0 && raining && frameCount < 3000){
+        if (PApplet.parseInt(random(0, rainperc)) == 0 && raining && frameCount < 5000){
             Point pt = new Point(loc.x, loc.y);
             drops.add(pt);
         }
         
     }
 
-
+    public void removefinished(){
+        for (int i = drops.size(); i >= 0; i--){
+            Point drop = drops.get(i);
+            if (drop.finished){
+                drops.remove(i);
+            }
+        }
+    }
 
     public void doAll(){
         for (int i = drops.size()-1; i >= 0; i--){
@@ -186,7 +193,7 @@ class Point {
     float waterTension = random(0.02f, 0.03f);
     float bounce;
     Stack stack;
-
+    boolean finished = false;
     public Point(float x, float y){
         curr = new PVector(x, y);
         prev = new PVector(x, y - speed);
@@ -213,7 +220,14 @@ class Point {
             
             line(pt1.x, pt1.y, pt2.x, pt2.y);
         }
+
+        PVector lastpt = stack.pts.get(stack.pts.size()-1);
+        if (lastpt.y > height){
+            finished = true;
+        }
     }
+
+
 
     public void addStack(){
         stack.push(curr);
