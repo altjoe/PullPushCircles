@@ -5,7 +5,7 @@ Pull pull;
 ArrayList<RainLine> lines = new ArrayList<RainLine>();
 boolean raining = true;
 void setup() {
-    size(512, 512);
+    size(1080, 1080);
     background(255);
     for (int i = 0; i < 100; i++){
         float x = (width*1.3*i)/100 - width/5;
@@ -40,6 +40,7 @@ void draw() {
         hardraincount += 1;
         if (hardraincount > 60){
             hardrain = false;
+            hardraincount = 0;
         }
     }
     
@@ -49,6 +50,7 @@ void draw() {
     } else if (rainperc > 500){
         rainsub *= -1;
     }
+
     push.display();
 }
 int hardraincount = 0;
@@ -82,7 +84,7 @@ class RainLine{
     }
 
     void shootone(){
-        if (int(random(0, rainperc)) == 0 && raining){
+        if (int(random(0, rainperc)) == 0 && raining && frameCount < 3000){
             Point pt = new Point(loc.x, loc.y);
             drops.add(pt);
         }
@@ -106,7 +108,7 @@ class RainLine{
 
 
 class Push {
-    float radius = 100;
+    float radius = 100*2;
     PVector loc;
 
     public Push(float x, float y){
@@ -148,7 +150,7 @@ class Push {
 
 class Pull {
     PVector loc;
-    float radius = 110;
+    float radius = 110*2;
     public Pull(float x, float y){
         loc = new PVector(x, y);
     }
@@ -194,7 +196,7 @@ class Point {
         // fill(0);
         // ellipse(curr.x, curr.y, 3, 3);
         noFill();
-        strokeWeight(3);
+        strokeWeight(6);
         for (int i = 1; i < stack.pts.size(); i++){
             PVector pt1 = stack.pts.get(i -1);
             PVector pt2 = stack.pts.get(i);
@@ -218,6 +220,42 @@ class Stack {
         pts.add(0, pt);
         if (pts.size() > s){
             pts.remove(pts.size()-1);
+        }
+    }
+}
+
+class Recording {
+    boolean recording = false;
+    boolean stopped = false;
+    int start_frame;
+    int stop_frame;
+    int frame_rate = 30;
+    int recording_time = 60;
+
+    public Recording() {
+        
+    }
+
+    void start(){
+        if (recording == false && stopped == false) {
+                recording = true;
+                start_frame = frameCount;
+                stop_frame = start_frame + (frame_rate * recording_time);
+        }
+    }
+
+    void control(){
+        if (recording) {
+            saveFrame("output/img-####.png");
+            if (stop_frame < frameCount) {
+                stopped = true;
+                recording = false;
+            }
+            print(stop_frame, frameCount, '\n');
+            if (stopped) {
+                println("Finished.");
+                System.exit(0);
+            }
         }
     }
 }

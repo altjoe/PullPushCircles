@@ -56,6 +56,7 @@ public void draw() {
         hardraincount += 1;
         if (hardraincount > 60){
             hardrain = false;
+            hardraincount = 0;
         }
     }
     
@@ -65,6 +66,7 @@ public void draw() {
     } else if (rainperc > 500){
         rainsub *= -1;
     }
+
     push.display();
 }
 int hardraincount = 0;
@@ -98,7 +100,7 @@ class RainLine{
     }
 
     public void shootone(){
-        if (PApplet.parseInt(random(0, rainperc)) == 0 && raining){
+        if (PApplet.parseInt(random(0, rainperc)) == 0 && raining && frameCount < 3000){
             Point pt = new Point(loc.x, loc.y);
             drops.add(pt);
         }
@@ -122,7 +124,7 @@ class RainLine{
 
 
 class Push {
-    float radius = 100;
+    float radius = 100*2;
     PVector loc;
 
     public Push(float x, float y){
@@ -164,7 +166,7 @@ class Push {
 
 class Pull {
     PVector loc;
-    float radius = 110;
+    float radius = 110*2;
     public Pull(float x, float y){
         loc = new PVector(x, y);
     }
@@ -210,7 +212,7 @@ class Point {
         // fill(0);
         // ellipse(curr.x, curr.y, 3, 3);
         noFill();
-        strokeWeight(3);
+        strokeWeight(6);
         for (int i = 1; i < stack.pts.size(); i++){
             PVector pt1 = stack.pts.get(i -1);
             PVector pt2 = stack.pts.get(i);
@@ -237,7 +239,43 @@ class Stack {
         }
     }
 }
-  public void settings() {  size(512, 512); }
+
+class Recording {
+    boolean recording = false;
+    boolean stopped = false;
+    int start_frame;
+    int stop_frame;
+    int frame_rate = 30;
+    int recording_time = 60;
+
+    public Recording() {
+        
+    }
+
+    public void start(){
+        if (recording == false && stopped == false) {
+                recording = true;
+                start_frame = frameCount;
+                stop_frame = start_frame + (frame_rate * recording_time);
+        }
+    }
+
+    public void control(){
+        if (recording) {
+            saveFrame("output/img-####.png");
+            if (stop_frame < frameCount) {
+                stopped = true;
+                recording = false;
+            }
+            print(stop_frame, frameCount, '\n');
+            if (stopped) {
+                println("Finished.");
+                System.exit(0);
+            }
+        }
+    }
+}
+  public void settings() {  size(1080, 1080); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "PullPushCircles" };
     if (passedArgs != null) {
